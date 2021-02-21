@@ -1,5 +1,3 @@
-const R = require("ramda");
-
 class Node {
   constructor(val) {
     this.val = val;
@@ -31,19 +29,3 @@ class SLL {
   }
 }
 
-// test cases
-const sll = new SLL();
-sll
-  .addFront(1)
-  .addFront(2)
-  .addFront(3)
-  .addFront(4)
-  .addFront(5)
-
-console.log(sll);
-console.log(sll);
-
-module.exports = {
-  Node,
-  SLL,
-}

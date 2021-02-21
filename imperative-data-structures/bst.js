@@ -37,11 +37,3 @@ class BST {
     }
   }
 }
-
-// test cases
-const bob = new BST();
-bob.addNode(8);
-bob.addNode(4);
-bob.addNode(12);
-bob.addNode(2);
-console.log(bob);

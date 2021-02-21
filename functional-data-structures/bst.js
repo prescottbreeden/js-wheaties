@@ -32,20 +32,3 @@ class BST {
 
 }
 
-// test cases
-const bst = new BST();
-bst
-  .add(8)
-  .add(2)
-  .add(1)
-  .add(3)
-  .printNode();
-
-bst
-  .add(12)
-  .add(42)
-  .add(88)
-  .add(3)
-  .printNode();
-
-

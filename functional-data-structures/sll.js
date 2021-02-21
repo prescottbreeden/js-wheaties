@@ -1,5 +1,3 @@
-const R = require("ramda");
-
 class Node {
   constructor(val, next = null) {
     this.val = val;
@@ -45,32 +43,3 @@ class SLL {
   };
 
 }
-
-// test cases
-const c = { val: 3, next: null };
-const b = { val: 2, next: c };
-const a = { val: 1, next: b };
-
-const bob = new SLL(a);
-
-bob
-  .addBack('meow')
-  .printNodes();
-
-bob
-  .map(R.multiply(-1))
-  .printNodes();
-
-bob
-  .map(R.add(42))
-  .printNodes();
-
-bob
-  .addFront(0)
-  .map(R.add(200))
-  .printNodes();
-
-// original
-bob
-  .printNodes();
-
