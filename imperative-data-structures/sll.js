@@ -1,0 +1,49 @@
+const R = require("ramda");
+
+class Node {
+  constructor(val) {
+    this.val = val;
+    this.next = null;
+  }
+}
+class SLL {
+  constructor() {
+    this.head = null;
+  }
+  addBack(val, node = this.head) {
+    if (!node) {
+      this.head = new Node(val);
+      return this;
+    }
+    return node.next
+      ? this.addFront(val, node.next)
+      : (() => { node.next = new Node(val); return this })();
+  }
+  addFront(val, node = this.head) {
+    if (!node) {
+      this.head = new Node(val);
+      return this;
+    }
+    const head = this.head;
+    this.head = new Node(val);
+    this.head.next = head;
+    return this;
+  }
+}
+
+// test cases
+const sll = new SLL();
+sll
+  .addFront(1)
+  .addFront(2)
+  .addFront(3)
+  .addFront(4)
+  .addFront(5)
+
+console.log(sll);
+console.log(sll);
+
+module.exports = {
+  Node,
+  SLL,
+}
