@@ -1,4 +1,6 @@
 const { assert } = require('../assert');
+const { performance } = require('../performance');
+
 // 1.1 is unique
 // Implement an algorithm to determin if a string has all unique characters.
 // What if you cannot use additional data structures?
@@ -16,16 +18,6 @@ const isUniqueMemo = string => {
       }
     }, true)
 }
-assert(
-  "It returns true if all letters are unique",
-  isUniqueMemo('abcde'),
-  true
-);
-assert(
-  "It returns false if all letters are not unique",
-  isUniqueMemo('abbcde'),
-  false
-);
 
 const isUniqueNoMemo = string => {
   return string.split('').reduce((acc, curr) => {
@@ -34,16 +26,6 @@ const isUniqueNoMemo = string => {
       : filtered = string.split('').filter(str => str === curr).length <= 1;
   }, true)
 }
-assert(
-  "It returns true if all letters are unique",
-  isUniqueNoMemo('abcde'),
-  true
-);
-assert(
-  "It returns false if all letters are not unique",
-  isUniqueNoMemo('abbcde'),
-  false
-);
 
 // 1.2 check permutation
 // Given two strings, write a method to decide if one is a permutation of the
@@ -68,17 +50,6 @@ const isPermutation = (string1, string2) => {
       : acc;
   }, true)
 };
-assert(
-  "It returns true if strings contain same number of letters",
-  isPermutation('cata', 'taca'),
-  true
-);
-assert(
-  "It returns false if strings contain different number of letters",
-  isPermutation('cata', 'tacaa'),
-  false
-);
-
 
 // 1.3 urlify
 // Write a method to replace all spaces in a string with '%20'. You may assume 
@@ -87,6 +58,7 @@ assert(
 // Example
 // Input: "Mr Jogn Smith     ", 13
 // Output: "Mr%20John%20Smith"
+const urlify = (string) => string.replace(/\s+/g, '%20');
 
 // 1.4 palindorome permutation
 // Given a string, write a function to check it if is a permutation of a palindorome.
@@ -94,6 +66,69 @@ assert(
 // Example
 // Input: "Tract Coa"
 // Output: True (permutations: "taco cat", "atco cta", etc.)
+const isPalindrome = (string) => {
+  const test = string
+    .split('')
+    .reverse()
+    .join('');
+  return test === string;
+}
+const swap = (string, pos1, pos2) => {
+  const arr = [...string.split('')];
+  const temp = string[pos1];
+  arr[pos1] = arr[pos2];
+  arr[pos2] = temp;
+  return arr.join('');
+}
+const permuteString = (string, lowerBound, upperBound, memo = {}) => {
+  if (lowerBound === upperBound || memo[string]) {
+    return [undefined];
+  }
+  let words = [];
+  for (let i = lowerBound; i <= upperBound; i++) {
+    const swapString = swap(string, lowerBound, i);
+    const permutations = permuteString(
+      swapString,
+      lowerBound + 1,
+      upperBound,
+      memo
+    );
+    memo = { ...memo, [swapString]: true };
+    words = [...words, swapString, ...permutations];
+  }
+  return words;
+}
+const allPermutations = (string) => {
+  const removeSpaces = string.replace(/\s+/g, '');
+  const allPermuteStringResults = permuteString(
+    removeSpaces,
+    0,
+    removeSpaces.length - 1
+  ).filter(x => x !== undefined);
+  const noDupes = allPermuteStringResults.reduce((acc, curr) => ({
+    ...acc,
+    [curr]: curr
+  }), {});
+  return Object.keys(noDupes);
+}
+// allPalindromes :: string -> [string]
+const allPalindromes = string => {
+  const perms = allPermutations(string);
+  return perms
+    .reduce((acc, curr) => {
+      if (isPalindrome(curr)) {
+        return [ ...acc, curr ];
+      }
+      return acc;
+    }, []);
+}
+// const testPalindromPermutations = performance(allPermutations);
+// testPalindromPermutations('taco act');
+// const perms = allPermutations('taco act');
+// const pals = allPalindromes(perms);
+// const hasPalindromes = hasPals(pals);
+// console.log('pals', hasPalindromes, pals);
+
 
 // 1.5 one away
 // There are three types of edits that can be performed on strings: insert a char,
@@ -125,5 +160,91 @@ assert(
 // another. Given two strings, s1 and s2, write code to check if s2 is a rotation
 // of s1 using only one call to isSubstring (e.g. "waterbootle" is a rotation of 
 // "erbottlewat")
+const rotateString = string => {
+  let words = [];
+  for(let idx = 0; idx < string.length; idx++) {
+    let word = string[idx];
+    let i = (idx + 1) % string.length;
+    while(i != idx) {
+      word += string[i];
+      i++;
+      i = i % string.length;
+    }
+    words.push(word);
+  }
+  return words;
+}
+
+assert(
+  "It returns true if all letters are unique",
+  isUniqueMemo('abcde'),
+  true
+);
+assert(
+  "It returns false if all letters are not unique",
+  isUniqueMemo('abbcde'),
+  false
+);
+assert(
+  "It returns true if all letters are unique",
+  isUniqueNoMemo('abcde'),
+  true
+);
+assert(
+  "It returns false if all letters are not unique",
+  isUniqueNoMemo('abbcde'),
+  false
+);
+
+assert(
+  "It returns true if strings contain same number of letters",
+  isPermutation('cata', 'taca'),
+  true
+);
+assert(
+  "It returns false if strings contain different number of letters",
+  isPermutation('cata', 'tacaa'),
+  false
+);
+
+assert(
+  "It removes all spaces and replaces with %20",
+  urlify("dingo ate    my semicolon"),
+  "dingo%20ate%20my%20semicolon"
+);
+
+assert(
+  "returns true if palindrome is possible",
+  isPalindrome("racecar"),
+  true
+);
+assert(
+  "returns true if palindrome is possible",
+  isPalindrome("raceecar"),
+  true
+);
+assert(
+  "returns false if palindrome is not possible",
+  isPalindrome("raceecart"),
+  false
+);
+assert(
+  "returns all palindromes",
+  allPalindromes('boob'),
+  ['boob', 'obbo']
+);
+
+// hasPals :: [string] -> boolean
+const hasPals = (strings) => strings.length > 0;
+assert(
+  "returns true if array has strings",
+  hasPals(['bob']),
+  true
+);
+assert(
+  "returns false if array is empty",
+  hasPals([]),
+  false
+);
 
 console.log("all cases passed");
