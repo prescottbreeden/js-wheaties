@@ -1,6 +1,8 @@
 const { assert } = require('../assert');
 const R = require('ramda');
 
+const trace = R.curry((msg, x) => console.log(msg, x) || x);
+
 // ============================================================================
 // 1.1 is unique
 // ============================================================================
@@ -178,8 +180,6 @@ const oneAway = (string1, string2) => {
 // If the compressed string would not become smaller than the original string, 
 // return the original string. Can assume string has only [A-Z][a-z].
 
-
-const trace = R.curry((msg, x) => console.log(msg, x) || x);
 // stringCompressionMemo :: string -> obj
 const stringCompressionMemo = string => ({
   result: '',
@@ -208,69 +208,56 @@ const generateCompressionString = R.converge(
   ]
 );
 
-// incrementLetter :: accumulator -> obj
-const _incrementLetter = accumulator => R.compose(
-  R.add(1),
-  R.prop('num'),
-  R.prop('memo')
-)(accumulator);
-
 // incrementLetter :: accumulator -> accumulator
-const handleLetterIncrement = accumulator => R.compose(
+const incrementLetter = accumulator => R.compose(
   R.assoc('memo', R.__, { ...accumulator }),
   R.assoc('num', R.__, { ...accumulator.memo }),
-  _incrementLetter,
+  R.compose(
+    R.add(1),
+    R.prop('num'),
+    R.prop('memo')
+  )
 )(accumulator);
 
-// concatCurrentMemoToResult :: accumulator -> { result }
-const concatCurrentMemoToResult = R.compose(
-  R.assoc('result', R.__, {}),
-  R.converge(
-    R.concat, [
-      R.prop('result'),
-      R.compose(
-        generateCompressionString,
-        handleLetterIncrement
-      )
-    ]
-  ),
-);
+// terminateWithRepeatedLetter :: accumulator -> accumulator
+// updates the count and updates result
+const terminateWithRepeatedLetter = acc => R.compose(
+  (x) => ({ ...acc, result: acc.result += x }),
+  generateCompressionString,
+  incrementLetter,
+)(acc);
 
-// const res = _handleLetterIncrement(stringCompressionMemo('dingo'))
-// console.log('result', res);
+// terminateWithNonRepeatedLetter :: accumulator -> accumulator
+// updates the result by concatenating the final letter
+const terminateWithNonRepeatedLetter = (acc, curr) => ({
+  ...acc,
+  result: acc.result += generateCompressionString(acc) + curr
+});
 
-// incrementLetter :: accumulator -> accumulator
-// const incrementLetter = (accumulator) => {
-//   // const num = accumulator.memo.num + 1;
-//   const num = (acc) => { num : ++acc.memo.num };
-//   return R.compose(
-//     R.mergeRight(accumulator),
-//     R.mergeRight(accumulator.memo),
-//     num,
-//   )(accumulator)
-// }
+// updateResult :: accumulator -> accumulator
+// updates the result and switches to new letter
+const updateResult = (acc, curr) => ({
+  result: acc.result += generateCompressionString(acc),
+  memo: { letter: curr, num: 1 },
+});
 
+// isRepeatedLetter :: (accumulator, string) -> boolean
+const isRepeatedLetter = (acc, curr) => acc.memo.letter === curr;
+
+// isLastLetter :: (string, int) -> boolean
+const isLastLetter = (string, index) => index === string.length - 1;
+
+// compressionReducer :: string -> (accumulator, current, index) -> accumulator
 const compressionReducer = string => (acc, curr, index) => {
-  if (index === string.length - 1) {
-    if (acc.memo.letter === curr) { return concatCurrentMemoToResult(acc); }
-    // different letter
-    return {
-      result: acc.result += generateCompressionString(acc) + curr,
-    }
+  if (isLastLetter(string, index)) {
+    return isRepeatedLetter(acc, curr)
+      ? terminateWithRepeatedLetter(acc)
+      : terminateWithNonRepeatedLetter(acc, curr);
   }
-  if (acc.memo.letter === curr) { return handleLetterIncrement(acc); }
-  else {
-    return {
-      result: acc.result += generateCompressionString(acc),
-      memo: {
-        letter: curr,
-        num: 1
-      }
-
-    }
-  }
+  return isRepeatedLetter(acc, curr)
+    ? incrementLetter(acc)
+    : updateResult(acc, curr);
 }
-
 
 // stringCompression :: string -> obj
 const stringCompression = string => {
@@ -283,28 +270,6 @@ const stringCompression = string => {
   return compression.result;
 }
 
-// -- tests
-assert(
-  "generates a valid compression memo schema",
-  JSON.stringify(stringCompressionMemo("dingo")),
-  JSON.stringify({
-    result: '',
-    memo: {
-      letter: 'd',
-      num: 0
-    }
-  })
-);
-assert(
-  "generates a compression result of a2b1c5a3",
-  stringCompression("aabcccccaaa"),
-  "a2b1c5a3"
-);
-assert(
-  "generates a compression result of a2b1c5a2p",
-  stringCompression("aabcccccaap"),
-  "a2b1c5a2p"
-);
 
 // ============================================================================
 // 1.7 rotate matrix
@@ -440,6 +405,29 @@ assert(
   "returns false if second string is not a rotation of the first",
   isSubstring('dingo', 'ngoid'),
   false
+);
+// --[ stringCompressionMemo ]-------------------------------------------------
+assert(
+  "generates a valid compression memo schema",
+  JSON.stringify(stringCompressionMemo("dingo")),
+  JSON.stringify({
+    result: '',
+    memo: {
+      letter: 'd',
+      num: 0
+    }
+  })
+);
+// --[ stringCompression ]-----------------------------------------------------
+assert(
+  "generates a compression result of a2b1c5a3",
+  stringCompression("aabcccccaaa"),
+  "a2b1c5a3"
+);
+assert(
+  "generates a compression result of a2b1c5a2p",
+  stringCompression("aabcccccaap"),
+  "a2b1c5a2p"
 );
 
 console.log("all test cases passed");
