@@ -1,4 +1,5 @@
 const { assert } = require('../assert');
+const R = require('ramda');
 
 // ============================================================================
 // 1.1 is unique
@@ -158,6 +159,17 @@ const allPalindromes = string => {
 // pale, bale -> true
 // pale, bake -> false
 
+// oneAway :: (string1, string2) -> boolean
+const oneAway = (string1, string2) => {
+  const diffs = string1.split('').reduce((acc, curr) => {
+    if (string2.includes(curr)) {
+      return acc;
+    }
+    return acc += curr;
+  }, '');
+  return diffs.length === 1;
+}
+
 // ============================================================================
 // 1.6 string compression
 // ============================================================================
@@ -165,6 +177,134 @@ const allPalindromes = string => {
 // repeated characters. For example, the string aabcccccaaa would become a2b1c5a3.
 // If the compressed string would not become smaller than the original string, 
 // return the original string. Can assume string has only [A-Z][a-z].
+
+
+const trace = R.curry((msg, x) => console.log(msg, x) || x);
+// stringCompressionMemo :: string -> obj
+const stringCompressionMemo = string => ({
+  result: '',
+  memo: {
+    letter: string[0],
+    num: 0
+  }
+});
+
+// generateCompression :: accumulator -> string
+const generateCompressionString = R.converge(
+  R.concat, [
+    R.compose(
+      R.prop('letter'),
+      R.prop('memo'),
+    ),
+    R.compose(
+      R.ifElse(
+        R.equals(0),
+        R.always(''),
+        R.toString
+      ),
+      R.prop('num'),
+      R.prop('memo'),
+    ),
+  ]
+);
+
+// incrementLetter :: accumulator -> obj
+const _incrementLetter = accumulator => R.compose(
+  R.add(1),
+  R.prop('num'),
+  R.prop('memo')
+)(accumulator);
+
+// incrementLetter :: accumulator -> accumulator
+const handleLetterIncrement = accumulator => R.compose(
+  R.assoc('memo', R.__, { ...accumulator }),
+  R.assoc('num', R.__, { ...accumulator.memo }),
+  _incrementLetter,
+)(accumulator);
+
+// concatCurrentMemoToResult :: accumulator -> { result }
+const concatCurrentMemoToResult = R.compose(
+  R.assoc('result', R.__, {}),
+  R.converge(
+    R.concat, [
+      R.prop('result'),
+      R.compose(
+        generateCompressionString,
+        handleLetterIncrement
+      )
+    ]
+  ),
+);
+
+// const res = _handleLetterIncrement(stringCompressionMemo('dingo'))
+// console.log('result', res);
+
+// incrementLetter :: accumulator -> accumulator
+// const incrementLetter = (accumulator) => {
+//   // const num = accumulator.memo.num + 1;
+//   const num = (acc) => { num : ++acc.memo.num };
+//   return R.compose(
+//     R.mergeRight(accumulator),
+//     R.mergeRight(accumulator.memo),
+//     num,
+//   )(accumulator)
+// }
+
+const compressionReducer = string => (acc, curr, index) => {
+  if (index === string.length - 1) {
+    if (acc.memo.letter === curr) { return concatCurrentMemoToResult(acc); }
+    // different letter
+    return {
+      result: acc.result += generateCompressionString(acc) + curr,
+    }
+  }
+  if (acc.memo.letter === curr) { return handleLetterIncrement(acc); }
+  else {
+    return {
+      result: acc.result += generateCompressionString(acc),
+      memo: {
+        letter: curr,
+        num: 1
+      }
+
+    }
+  }
+}
+
+
+// stringCompression :: string -> obj
+const stringCompression = string => {
+  const compression = string
+    .split('')
+    .reduce(
+      compressionReducer(string),
+      stringCompressionMemo(string)
+    );
+  return compression.result;
+}
+
+// -- tests
+assert(
+  "generates a valid compression memo schema",
+  JSON.stringify(stringCompressionMemo("dingo")),
+  JSON.stringify({
+    result: '',
+    memo: {
+      letter: 'd',
+      num: 0
+    }
+  })
+);
+assert(
+  "generates a compression result of a2b1c5a3",
+  stringCompression("aabcccccaaa"),
+  "a2b1c5a3"
+);
+assert(
+  "generates a compression result of a2b1c5a2p",
+  stringCompression("aabcccccaap"),
+  "a2b1c5a2p"
+);
 
 // ============================================================================
 // 1.7 rotate matrix
@@ -268,6 +408,27 @@ assert(
   "returns all palindromes",
   allPalindromes('boob'),
   ['boob', 'obbo']
+);
+// --[ oneAway ]---------------------------------------------------------------
+assert(
+  "pale, ple returns true",
+  oneAway('pale', 'ple'),
+  true
+);
+assert(
+  "pales, pale returns true",
+  oneAway('pales', 'pale'),
+  true
+);
+assert(
+  "bale, pale returns true",
+  oneAway('bale', 'pale'),
+  true
+);
+assert(
+  "pale, ple returns true",
+  oneAway('pale', 'bake'),
+  false
 );
 // --[ isSubstring ]-----------------------------------------------------------
 assert(
