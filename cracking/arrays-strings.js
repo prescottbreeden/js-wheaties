@@ -1,6 +1,8 @@
 const { assert } = require('../assert');
 
+// ============================================================================
 // 1.1 is unique
+// ============================================================================
 // Implement an algorithm to determin if a string has all unique characters.
 // What if you cannot use additional data structures?
 //
