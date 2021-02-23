@@ -280,11 +280,12 @@ const stringCompression = string => {
 
 const rotateMatrix = matrix => {
   const newMatrix = [];
-  for (let y = 0; y < matrix.length; y++) {
+  const N = matrix.length;
+  for (let row = 0; row < N; row++) {
     newMatrix.push([]);
-    for (let x = 0; x < matrix[y].length; x++) {
-      const pos = matrix[y].length - 1 - x;
-      newMatrix[y].push(matrix[pos][y])
+    for (let col = 0; col < N; col++) {
+      const pos = N - 1 - col;
+      newMatrix[row].push(matrix[pos][row]);
     }
   }
   return newMatrix;
@@ -293,13 +294,13 @@ const rotateMatrix = matrix => {
 // this is just array math masturbation...
 const rotateMatrixInplace = matrix => {
   const N = matrix.length;
-  for (let y = 0; y < N / 2; y++) {
-    for (let x = y; x < N - y - 1; x++) {
-      const temp = matrix[y][x];
-      matrix[y][x] = matrix[N - 1 - x][y];
-      matrix[N - 1 - x][y] = matrix[N - 1 - y][N - 1 - x];
-      matrix[N - 1 - y][N - 1 - x] = matrix[x][N - 1 - y];
-      matrix[x][N - 1 - y] = temp;
+  for (let row = 0; row < N / 2; row++) {
+    for (let col = row; col < N - row - 1; col++) {
+      const temp = matrix[row][col];
+      matrix[row][col] = matrix[N - 1 - col][row];
+      matrix[N - 1 - col][row] = matrix[N - 1 - row][N - 1 - col];
+      matrix[N - 1 - row][N - 1 - col] = matrix[col][N - 1 - row];
+      matrix[col][N - 1 - row] = temp;
     }
   }
   return matrix;
@@ -310,6 +311,41 @@ const rotateMatrixInplace = matrix => {
 // ============================================================================
 // Write an algorithm such that if an element in an M X N matrix is 0, its entire
 // row and column are set to 0.
+
+// zeroRowsColsOfMatrix :: ([[int]], [int], [int]) -> [[int]]
+const zeroRowsColsOfMatrix = (matrix, zcol, zrow) => {
+  const newMatrix = [];
+  const N = matrix.length;
+  for (let row = 0; row < N; row++) {
+    newMatrix.push([]);
+    for (let col = 0; col < N; col++) {
+      if (zcol.includes(col) || zrow.includes(row)) {
+        newMatrix[row].push(0);
+      } else {
+        newMatrix[row].push(matrix[row][col]);
+      }
+    }
+  }
+  return newMatrix;
+}
+// zeroMatrix :: [[int]] -> [[int]]
+const zeroMatrix = matrix => {
+  const N = matrix.length;
+  let zcol = [];
+  let zrow = [];
+  for (let row = 0; row < N; row++) {
+    for (let col = 0; col < N; col++) {
+      if (matrix[row][col] === 0) {
+        zcol = [...zcol, col];
+        zrow = [...zrow, row];
+      }
+    }
+  }
+  return (zcol.length || zrow.length)
+    ?  zeroRowsColsOfMatrix(matrix, zcol, zrow)
+    : matrix;
+}
+
 
 // ============================================================================
 // 1.9 string rotation
@@ -457,30 +493,55 @@ assert(
   "a2b1c5a2p"
 );
 // --[ rotate matrix ] --------------------------------------------------------
-const testData = [
+const testDataRotateMatrix = [
   [1, 2, 3],
   [4, 5, 6],
   [7, 8, 9],
 ];
 assert(
   "Rotates matrix with new matrix numbers in correct position.",
-  R.equals(rotateMatrix(testData), [[7, 4, 1], [8, 5, 2], [9, 6, 3]]),
+  R.equals(rotateMatrix(
+    testDataRotateMatrix),
+    [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+  ),
   true
 );
 assert(
   "Rotates matrix and produces new matrix.",
-  R.equals(rotateMatrix(testData), testData),
+  R.equals(rotateMatrix(testDataRotateMatrix), testDataRotateMatrix),
   false,
 );
 assert(
   "Rotates matrix in place with new matrix numbers in correct position.",
-  R.equals(rotateMatrixInplace(testData), [[7, 4, 1], [8, 5, 2], [9, 6, 3]]),
+  R.equals(
+    rotateMatrixInplace(testDataRotateMatrix),
+    [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+  ),
   true
 );
 assert(
   "Rotates matrix in place.",
-  R.equals(rotateMatrixInplace(testData), testData),
+  R.equals(rotateMatrixInplace(testDataRotateMatrix), testDataRotateMatrix),
   true
+);
+// --[ zero matrix ] --------------------------------------------------------
+const testDataZeroMatrix = [
+  [0, 2, 3],
+  [4, 0, 6],
+  [7, 8, 0],
+];
+assert(
+  "Replaces all cols and rows with 0s with all 0s.",
+  R.equals(zeroMatrix(
+    testDataZeroMatrix),
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+  ),
+  true
+);
+assert(
+  "Rotates matrix and produces new matrix.",
+  R.equals(zeroMatrix(testDataZeroMatrix), testDataZeroMatrix),
+  false,
 );
 
 
