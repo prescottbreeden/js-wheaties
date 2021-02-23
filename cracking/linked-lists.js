@@ -8,6 +8,7 @@ class SLL {
   constructor() {
     this.head = null;
   }
+  // debug
   printNodeVals = (node = this.head) => {
     if (!node) return this;
     console.log('node', node.val);
@@ -15,6 +16,8 @@ class SLL {
       this.printNodeVals(node.next);
     }
   }
+
+  // addFront :: x -> SLL
   addFront = (val) => {
     const newNode = new Node(val);
     if (this.head === null) {
@@ -26,6 +29,8 @@ class SLL {
     newNode.next = temp;
     return this;
   }
+
+  // removeDupesWithBuffer :: () -> SLL
   removeDupesWithBuffer = () => {
     if (this.head === null) return this;
     const dupes = {
@@ -43,18 +48,21 @@ class SLL {
     }
     return this;
   }
+
+  // removeDupesNoBuffer :: () -> SLL
   removeDupesNoBuffer = (start = 0) => {
     if (this.head === null) return this;
     let runner = this.head;
-    let bunny = start;
-    while (bunny > 0) {
+    let inc = 0;
+    while (inc < start) {
       runner = runner.next;
-      bunny--;
+      inc++;
     }
     const checkValue = runner.val;
-    if (runner.next === null) {
-      return this;
-    }
+
+    // recursion base case
+    if (runner.next === null) return this;
+
     while(runner.next) {
       if (runner.next.val === checkValue) {
         runner.next = runner.next.next;
@@ -62,6 +70,27 @@ class SLL {
       runner = runner.next;
     }
     return this.removeDupesNoBuffer(start + 1);
+  }
+
+  // returnNthToLast :: int -> node
+  NthToLast = (nth, pos = undefined) => {
+    if (this.head === null) return this;
+    let runner = this.head;
+    let length = 1;
+    while (runner) {
+      if (length === pos) {
+        return runner;
+      }
+      runner = runner.next;
+      if (runner) {
+        length++;
+      }
+    }
+    const position = length - nth;
+    if (position <= 0) {
+      throw new Error("SLL is too short");
+    }
+    return this.NthToLast(nth, position);
   }
 }
 
@@ -90,6 +119,7 @@ bob.printNodeVals();
 // ============================================================================
 // Implement an algorithm to find the nth to last element of a singly linked 
 // list.
+const res = bob.NthToLast(5);
 
 // ============================================================================
 // 2.3 delete middle node
