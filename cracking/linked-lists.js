@@ -124,6 +124,28 @@ class SLL {
     }
     return this;
   }
+
+  partition = (val) => {
+    if (this.head === null) return this;
+    const leftPartition = new SLL();
+    const rightPartition = new SLL();
+    let runner = this.head;
+    while(runner) {
+      if (runner.val < val) {
+        leftPartition.addFront(runner.val);
+      } else {
+        rightPartition.addFront(runner.val);
+      }
+      runner = runner.next;
+    }
+    this.head = leftPartition.head;
+    runner = this.head;
+    while(runner.next) {
+      runner = runner.next;
+    }
+    runner.next = rightPartition.head;
+    return this;
+  }
 }
 
 // ============================================================================
@@ -176,4 +198,46 @@ frank
 // Write code to partition a linked list around a value X such that all nodes
 // less than X come before nodes greater than or equal to X.
 // Important: the partition element X can appear anywhere in the right partitiion
-// it does not need to appear in the left partition ? 
+//
+console.log('---[ sally ]---')
+const sally = new SLL();
+sally
+  .addFront(3)
+  .addFront(5)
+  .addFront(8)
+  .addFront(5)
+  .addFront(10)
+  .addFront(2)
+  .addFront(1)
+  .partition(5)
+  .printNodeVals();
+
+// ============================================================================
+// 2.5 sum lists
+// ============================================================================
+// You have two numbers represented by a linked list, where each node contains
+// a single digit. The digits are stored in reverse order, such that the 1s digit
+// is at the head of the list. Write a function that adds the two numbers and 
+// returns the sum as a linked list. (You are not allowed to cheat and just 
+// convert the linked list to an integer)
+
+// ============================================================================
+// 2.6 palindrome
+// ============================================================================
+// Implement a function to check if a linked list is a palindrome
+
+// ============================================================================
+// 2.7 intersection
+// ============================================================================
+// Given two linked lists, determine if the two lists intersect. Return the 
+// intersecting node. Note that the intersection is defined based on reference, 
+// not value. That is, if the kth node of the first linked list is the exact 
+// same node (by reference) as the jth node of the second linked list, then they
+// are intersecting.
+//
+
+// ============================================================================
+// 2.8 loop detection
+// ============================================================================
+// Given a linked list which might contain a loop, implement an algorithm that 
+// returns the node at the beginning of the loop (if one exists).
