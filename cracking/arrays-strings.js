@@ -1,8 +1,6 @@
 const { assert } = require('../assert');
 const R = require('ramda');
 
-const trace = R.curry((msg, x) => console.log(msg, x) || x);
-
 // ============================================================================
 // 1.1 is unique
 // ============================================================================
@@ -209,15 +207,13 @@ const generateCompressionString = R.converge(
 );
 
 // incrementLetter :: accumulator -> accumulator
-const incrementLetter = accumulator => R.compose(
-  R.assoc('memo', R.__, { ...accumulator }),
-  R.assoc('num', R.__, { ...accumulator.memo }),
-  R.compose(
-    R.add(1),
-    R.prop('num'),
-    R.prop('memo')
-  )
-)(accumulator);
+const incrementLetter = accumulator => ({
+  ...accumulator,
+  memo: {
+    ...accumulator.memo,
+    num: accumulator.memo.num + 1,
+  }
+});
 
 // terminateWithRepeatedLetter :: accumulator -> accumulator
 // updates the count and updates result
@@ -277,6 +273,37 @@ const stringCompression = string => {
 // Given an image represented by an N x N matrix, where each pixel in the image is
 // represented by an integer, write a method to rotate the image by 90 degrees.
 // Can you do this in place?
+// example
+// 1 2 3 >> 7 4 1
+// 4 5 6 >> 8 5 2
+// 7 8 9 >> 9 6 3
+
+const rotateMatrix = matrix => {
+  const newMatrix = [];
+  for (let y = 0; y < matrix.length; y++) {
+    newMatrix.push([]);
+    for (let x = 0; x < matrix[y].length; x++) {
+      const pos = matrix[y].length - 1 - x;
+      newMatrix[y].push(matrix[pos][y])
+    }
+  }
+  return newMatrix;
+}
+
+// this is just array math masturbation...
+const rotateMatrixInplace = matrix => {
+  const N = matrix.length;
+  for (let y = 0; y < N / 2; y++) {
+    for (let x = y; x < N - y - 1; x++) {
+      const temp = matrix[y][x];
+      matrix[y][x] = matrix[N - 1 - x][y];
+      matrix[N - 1 - x][y] = matrix[N - 1 - y][N - 1 - x];
+      matrix[N - 1 - y][N - 1 - x] = matrix[x][N - 1 - y];
+      matrix[x][N - 1 - y] = temp;
+    }
+  }
+  return matrix;
+}
 
 // ============================================================================
 // 1.8 zero matrix
@@ -429,5 +456,32 @@ assert(
   stringCompression("aabcccccaap"),
   "a2b1c5a2p"
 );
+// --[ rotate matrix ] --------------------------------------------------------
+const testData = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+];
+assert(
+  "Rotates matrix with new matrix numbers in correct position.",
+  R.equals(rotateMatrix(testData), [[7, 4, 1], [8, 5, 2], [9, 6, 3]]),
+  true
+);
+assert(
+  "Rotates matrix and produces new matrix.",
+  R.equals(rotateMatrix(testData), testData),
+  false,
+);
+assert(
+  "Rotates matrix in place with new matrix numbers in correct position.",
+  R.equals(rotateMatrixInplace(testData), [[7, 4, 1], [8, 5, 2], [9, 6, 3]]),
+  true
+);
+assert(
+  "Rotates matrix in place.",
+  R.equals(rotateMatrixInplace(testData), testData),
+  true
+);
+
 
 console.log("all test cases passed");
