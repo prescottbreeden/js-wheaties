@@ -30,6 +30,21 @@ class SLL {
     return this;
   }
 
+  // addBack :: x -> SLL
+  addBack = (val) => {
+    const newNode = new Node(val);
+    if (this.head === null) {
+      this.head = new Node(val);
+      return this;
+    }
+    let runner = this.head;
+    while (runner.next) {
+      runner = runner.next;
+    }
+    runner.next = newNode;
+    return this;
+  }
+
   // removeDupesWithBuffer :: () -> SLL
   removeDupesWithBuffer = () => {
     if (this.head === null) return this;
@@ -125,6 +140,7 @@ class SLL {
     return this;
   }
 
+  // partition :: x -> SLL
   partition = (val) => {
     if (this.head === null) return this;
     const leftPartition = new SLL();
@@ -146,6 +162,46 @@ class SLL {
     runner.next = rightPartition.head;
     return this;
   }
+
+  // sumLists :: SLL -> SLL
+  sumLists = (sll) => {
+    if (this.head === null) return sll.sumLists(this);
+    let runner1 = this.head;
+    let runner2 = sll.head;
+    let result = new SLL();
+    let remainder = 0;
+    while (runner1 || runner2) {
+      if (runner1 && runner2) {
+        const sum = runner1.val + runner2.val + remainder;
+        let adding;
+        // 11 -> add 1 : remainder 1
+        // 10 -> add 0 : remainder 1
+        if (sum >= 10) {
+          let slicey = sum.toString().split('');
+          remainder = Number(slicey[0]);
+          adding = Number(slicey[1]);
+        } else {
+          remainder = 0;
+          adding = sum;
+        }
+        result.addBack(adding);
+        runner1 = runner1.next;
+        runner2 = runner2.next;
+      } else if (runner1) {
+        result.addBack(runner1.val + remainder);
+        remainder = 0;
+        runner1 = runner1.next;
+      } else if (runner2) {
+        result.addBack(runner2.val + remainder);
+        remainder = 0;
+        runner2 = runner2.next;
+      }
+    }
+    if (remainder > 0) {
+      result.addBack(remainder);
+    }
+    return result;
+  }
 }
 
 // ============================================================================
@@ -153,9 +209,8 @@ class SLL {
 // ============================================================================
 // Write code to remove duplications from an unsorted linked list
 // How would you solve this problem if a temporary buffer is not allowed?
-console.log('---[ bob ]---')
-const bob = new SLL();
-bob
+console.log('---[ remove dupes ]---')
+new SLL()
   .addFront(5)
   .addFront(4)
   .addFront(3)
@@ -175,7 +230,14 @@ bob
 // ============================================================================
 // Implement an algorithm to find the nth to last element of a singly linked 
 // list.
-const res = bob.NthToLast(5);
+const res = new SLL()
+  .addFront(5)
+  .addFront(4)
+  .addFront(3)
+  .addFront(2)
+  .addFront(8)
+  .addFront(1)
+  .NthToLast(5);
 
 // ============================================================================
 // 2.3 delete middle node
@@ -183,9 +245,8 @@ const res = bob.NthToLast(5);
 // Implement an algorithm to delete a node in the middle - any node but the first
 // and last node and not necessarily the exact middle - of a singly linked list
 // given only access to the node
-console.log('---[ frank ]---')
-const frank = new SLL();
-frank
+console.log('---[ delete middle node ]---')
+new SLL()
   .addFront(5)
   .addFront(4)
   .addFront(3)
@@ -199,14 +260,12 @@ frank
 // less than X come before nodes greater than or equal to X.
 // Important: the partition element X can appear anywhere in the right partitiion
 //
-console.log('---[ sally ]---')
-const sally = new SLL();
-sally
+console.log('---[ partition ]---')
+new SLL()
   .addFront(3)
   .addFront(5)
   .addFront(8)
   .addFront(5)
-  .addFront(10)
   .addFront(2)
   .addFront(1)
   .partition(5)
@@ -220,11 +279,17 @@ sally
 // is at the head of the list. Write a function that adds the two numbers and 
 // returns the sum as a linked list. (You are not allowed to cheat and just 
 // convert the linked list to an integer)
+console.log('---[ sumLists ]---')
+new SLL()
+  .addBack(9)
+  .addBack(8)
+  .sumLists(new SLL())
+  .printNodeVals();
 
 // ============================================================================
 // 2.6 palindrome
 // ============================================================================
-// Implement a function to check if a linked list is a palindrome
+// Implement a function to check if a singly linked list is a palindrome
 
 // ============================================================================
 // 2.7 intersection
