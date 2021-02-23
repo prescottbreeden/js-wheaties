@@ -41,5 +41,4 @@ class SLL {
       ? new SLL(new Node(val))
       : new SLL(this._addBack(val, node));
   };
-
 }
