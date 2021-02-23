@@ -78,6 +78,7 @@ class SLL {
     let runner = this.head;
     let length = 1;
     while (runner) {
+      // recursion base case
       if (length === pos) {
         return runner;
       }
@@ -88,9 +89,40 @@ class SLL {
     }
     const position = length - nth;
     if (position <= 0) {
-      throw new Error("SLL is too short");
+      throw new Error("SLL is too short.");
     }
     return this.NthToLast(nth, position);
+  }
+
+  // getLength :: () -> int
+  getLength = () => {
+    let length = 0;
+    let runner = this.head;
+    while(runner) {
+      length++;
+      runner = runner.next;
+    }
+    return length;
+  }
+
+  // deleteMiddleNode :: () -> SLL
+  deleteMiddleNode = () => {
+    const length = this.getLength();
+    let position = 0;
+    let runner = this.head;
+    if (length <= 2) {
+      return this;
+    }
+    while(runner) {
+      position++;
+      if (position === Math.floor(length/2)) {
+        runner.next = runner.next.next;
+        return this;
+      } else {
+        runner = runner.next;
+      }
+    }
+    return this;
   }
 }
 
@@ -99,6 +131,7 @@ class SLL {
 // ============================================================================
 // Write code to remove duplications from an unsorted linked list
 // How would you solve this problem if a temporary buffer is not allowed?
+console.log('---[ bob ]---')
 const bob = new SLL();
 bob
   .addFront(5)
@@ -108,10 +141,11 @@ bob
   .addFront(2)
   .addFront(2)
   .addFront(8)
-  .addFront(1);
+  .addFront(1)
+  .removeDupesNoBuffer()
+  .printNodeVals();
 // bob.removeDupesWithBuffer();
-bob.removeDupesNoBuffer();
-bob.printNodeVals();
+// bob.removeDupesNoBuffer();
 
 
 // ============================================================================
@@ -127,7 +161,14 @@ const res = bob.NthToLast(5);
 // Implement an algorithm to delete a node in the middle - any node but the first
 // and last node and not necessarily the exact middle - of a singly linked list
 // given only access to the node
-// Examples
+console.log('---[ frank ]---')
+const frank = new SLL();
+frank
+  .addFront(5)
+  .addFront(4)
+  .addFront(3)
+  .deleteMiddleNode()
+  .printNodeVals();
 
 // ============================================================================
 // 2.4 partition
