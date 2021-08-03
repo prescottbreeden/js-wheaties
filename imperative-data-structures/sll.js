@@ -1,3 +1,5 @@
+console.log('--[ SLL ]------------------');
+
 class Node {
   constructor(val) {
     this.val = val;
@@ -15,7 +17,10 @@ class SLL {
     }
     return node.next
       ? this.addFront(val, node.next)
-      : (() => { node.next = new Node(val); return this })();
+      : (() => {
+          node.next = new Node(val);
+          return this;
+        })();
   }
   addFront(val, node = this.head) {
     if (!node) {
@@ -29,3 +34,7 @@ class SLL {
   }
 }
 
+module.exports = {
+  Node,
+  SLL,
+};
