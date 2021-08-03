@@ -1,4 +1,4 @@
-// SLL Functor
+// SLL Functor v2
 const SLL = (head, tail = null) => ({
   head,
   tail,
