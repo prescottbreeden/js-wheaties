@@ -15,7 +15,7 @@ class SLL {
     return node.next === null
       ? new Node(f(node.val))
       : new Node(f(node.val), this._map(f, node.next));
-  }
+  };
 
   _addBack = (val, node) => {
     if (!node) return node;
@@ -28,17 +28,17 @@ class SLL {
   map(f) {
     if (!this.head) return this;
     return new SLL(this._map(f, this.head));
-  };
+  }
 
   // addFront :: x -> sll
   addFront(val) {
     return new SLL(new Node(val, this.head));
-  };
+  }
 
   // addBack :: x -> sll
   addBack(val, node = this.head) {
     return node === null
       ? new SLL(new Node(val))
       : new SLL(this._addBack(val, node));
-  };
+  }
 }
