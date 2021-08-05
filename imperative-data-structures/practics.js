@@ -1,3 +1,33 @@
+const Cons = (value, next = null) => ({
+  value,
+  next,
+});
+
+class LinkedList {
+  #head;
+  constructor(init = null) {
+    this.#head = init ? Cons(init) : null;
+  }
+
+  get head() {
+    return this.#head;
+  }
+
+  addToFront(newValue) {
+    this.#head = Cons(newValue, this.#head);
+  }
+
+  removeFront() {
+    if (this.#head) {
+      const result = this.#head.value;
+      this.#head = this.#head.next;
+      return result;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+
 const addVertex = (name, vertex = []) => (graph) =>
   graph[vertex] ? graph : { ...graph, [name]: vertex };
 
@@ -24,6 +54,58 @@ const removeVertex = (v) => (graph) => {
   }, {});
 };
 
+const depthFirstTraverse = (start) => (graph) => {
+  const result = [];
+  const visited = { [start]: true };
+
+  const traverse = (v) => {
+    graph[v].forEach((n) => {
+      if (!visited[n.id]) {
+        result.push(n);
+        visited[n.id] = true;
+        traverse(n.id);
+      }
+    });
+  };
+  traverse(start);
+  return result;
+};
+
+const iterativeDFS = (start) => (graph) => {
+  const stack = new LinkedList(start);
+  const visited = { [start]: true };
+  const result = [];
+
+  while (stack.head) {
+    const vertex = stack.removeFront();
+    graph[vertex].forEach((neighbor) => {
+      if (!visited[neighbor.id]) {
+        visited[neighbor.id] = true;
+        stack.addToFront(neighbor.id);
+        result.push(neighbor);
+      }
+    });
+  }
+  return result;
+};
+
+const breadthFirstTraverse = (start) => (graph) => {
+  const result = [];
+  const visited = { [start]: true };
+
+  const traverse = (v) => {
+    graph[v].forEach((n) => {
+      if (!visited[n.id]) {
+        result.push(n);
+        visited[n.id] = true;
+        traverse(n.id);
+      }
+    });
+  };
+  traverse(start);
+  return result;
+};
+
 // undirected dummy data
 const users = [
   { id: '1', name: 'Tom the Turtle' },
@@ -41,10 +123,14 @@ const relations = [
   ['2', '7', 2],
   ['2', '8', 8],
   ['3', '4', 9],
+  ['4', '5', 1],
   ['5', '6', 3],
   ['1', '7', 3],
 ];
 const network = users.reduce((acc, curr) => addVertex(curr.id)(acc), {});
 const d2 = relations.reduce((acc, curr) => addEdge(...curr)(acc), network);
-console.log(d2);
-console.log(removeVertex('8')(d2));
+// console.log(d2);
+let dfs = depthFirstTraverse('1')(d2);
+console.log(dfs);
+dfs = iterativeDFS('1')(d2);
+console.log(dfs);
