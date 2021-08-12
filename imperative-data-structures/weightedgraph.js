@@ -14,6 +14,18 @@ class PQ {
   }
 }
 
+class Queue {
+  constructor() {
+    this.values = [];
+  }
+  enqueue(val) {
+    this.values.push(val);
+  }
+  dequeue() {
+    return this.values.shift();
+  }
+}
+
 class WeightedGraph {
   constructor() {
     this.adjacencyList = {};
@@ -44,14 +56,31 @@ class WeightedGraph {
     return result;
   }
 
+  breadthFirst(start) {
+    const result = [];
+    const visited = { [start]: true };
+    const queue = new Queue();
+    queue.enqueue(start);
+    while (queue.values.length) {
+      const node = queue.dequeue();
+      this.adjacencyList[node].forEach((n) => {
+        if (!visited[n.id]) {
+          visited[n.id] = true;
+          queue.enqueue(n.id);
+          result.push(n);
+        }
+      });
+    }
+    return result;
+  }
+
   shortestPaths(start, finish) {
     const nodes = new PQ();
-    const vertices = Object.keys(this.adjacencyList);
     const distances = {};
     const previous = {};
 
     // setup data
-    vertices.forEach((vertex) => {
+    Object.keys(this.adjacencyList).forEach((vertex) => {
       if (vertex === start) {
         distances[vertex] = 0;
         nodes.enqueue(vertex, 0);
@@ -112,6 +141,10 @@ graph.addEdge('D', 'F', 1);
 graph.addEdge('F', 'E', 1);
 graph.addEdge('F', 'C', 4);
 
+const bfs = graph.breadthFirst('A');
+console.log(bfs);
+const dfs = graph.depthFirst('A');
+console.log(dfs);
 const paths = graph.shortestPaths('A', 'F');
 const distance = paths.reduce(
   (acc, curr) => (acc < curr.weight ? curr.weight : acc),
