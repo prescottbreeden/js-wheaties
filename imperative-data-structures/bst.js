@@ -1,7 +1,4 @@
-const pipe =
-  (...fns) =>
-  (arg) =>
-    fns.reduce((acc, curr) => curr(acc), arg);
+const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const gt = (a) => (b) => b > a;
 const lt = (a) => (b) => b < a;
@@ -49,7 +46,7 @@ class Queue {
 // BST
 const height = (left, right) => {
   if (left && right) {
-    return left.height > right.height ? left.height : right.height;
+    return Math.max(left.height, right.height);
   } else if (left || right) {
     return left ? left.height : right.height;
   } else {
@@ -65,12 +62,10 @@ const BST = (value, left = null, right = null) => ({
   height: 1 + height(left, right),
 });
 
-const insert =
-  (newValue) =>
-  ({ value, left, right }) =>
-    newValue < value
-      ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
-      : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
+const insert = (newValue) => ({ value, left, right }) =>
+  newValue < value
+    ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
+    : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
 
 const max = (bst) => (bst.right ? max(bst.right) : bst.value);
 const min = (bst) => (bst.left ? min(bst.left) : bst.value);
@@ -79,8 +74,8 @@ const contains = (search) => (bst) =>
   match([
     [eq(null), () => false],
     [pipe(prop('value'), eq(search)), () => true],
-    [pipe(prop('value'), gt(search)), pipe(prop('left'), findNode(search))],
-    [pipe(prop('value'), lt(search)), pipe(prop('right'), findNode(search))],
+    [pipe(prop('value'), gt(search)), pipe(prop('left'), contains(search))],
+    [pipe(prop('value'), lt(search)), pipe(prop('right'), contains(search))],
   ])(bst);
 
 const filter = (predicate) => (bst) => {
@@ -194,6 +189,18 @@ const minimalTree = (values) => {
   return rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
 };
 
+// heights of two subtrees of any node never differ by more than 1
+const checkBalanced = (bst) => bst;
+
+// check if a bst is valid
+const validBST = (bst) => bst;
+
+// find the "next" node (in-order successor)) of a given node
+// you may assume each node has a link to it's parent
+const successor = (node) => node;
+
+const buildOrder = () => null;
+
 // test cases
 const tree = [6, 15, 3, 8, 20].reduce(
   (acc, curr) => insert(curr)(acc),
@@ -204,8 +211,8 @@ const tree2 = rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
 const minTree = minimalTree([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 console.log('eq', eq(tree)(tree2));
-console.log('find', findNode(8)(tree));
-console.log('find', findNode(18)(tree));
+console.log('find', contains(8)(tree));
+console.log('find', contains(18)(tree));
 console.log('listOfDepths', listOfDepths(tree2));
 console.log('minimalTree', minTree);
 console.log('preOrder', preOrder(minTree));
