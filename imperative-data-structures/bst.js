@@ -17,10 +17,9 @@ const trace = (msg) => (x) => console.log(msg, x) || x;
 const SLL = (value, next = null) => ({
   value,
   next,
+  length: 1 + (next ? next.length : 0)
 });
-
 const addFront = (newValue) => (sll) => SLL(newValue, sll);
-
 const addBack = (newValue) => (sll) =>
   sll
     ? SLL(sll.value, sll.next ? addBack(newValue)(sll.next) : SLL(newValue))
@@ -29,13 +28,18 @@ const addBack = (newValue) => (sll) =>
 // QUEUE
 class Queue {
   constructor() {
-    this.values = [];
+    this.head = null;
+  }
+  get hasValues() {
+    return this.head !== null;
   }
   enqueue(value) {
-    this.values.push(value);
+    this.head = addBack(value)(this.head);
   }
   dequeue() {
-    return this.values.shift();
+    const { value, next} = this.head;
+    this.head = next;
+    return value;
   }
 }
 
@@ -123,7 +127,7 @@ const listOfDepths = (bst) => {
   const result = {};
   const nodes = new Queue();
   nodes.enqueue(bst);
-  while (nodes.values.length) {
+  while (nodes.hasValues) {
     const { value, left, right, height } = nodes.dequeue();
     result[height] = addFront(value)(result[height]);
     left && nodes.enqueue(left);
