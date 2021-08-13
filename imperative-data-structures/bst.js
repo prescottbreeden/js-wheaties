@@ -17,7 +17,7 @@ const trace = (msg) => (x) => console.log(msg, x) || x;
 const SLL = (value, next = null) => ({
   value,
   next,
-  length: 1 + (next ? next.length : 0)
+  length: 1 + (next ? next.length : 0),
 });
 const addFront = (newValue) => (sll) => SLL(newValue, sll);
 const addBack = (newValue) => (sll) =>
@@ -136,16 +136,41 @@ const listOfDepths = (bst) => {
   return result;
 };
 
-// test cases
+const minimalTree = (values) => {
+  const middleIdx = (arr) => Math.floor((arr.length - 1) / 2);
 
+  let shift;
+  if (values.length % 2 === 0) {
+    shift = values.pop();
+  }
+  const preOrdered = [];
+  const divide = (partition) => {
+    if (partition.length <= 1) {
+      preOrdered.push(...partition);
+      return;
+    }
+    const middle = middleIdx(partition);
+    preOrdered.push(partition[middle]);
+    divide(partition.slice(0, middle));
+    divide(partition.slice(middle + 1));
+  };
+  divide(values);
+  const [root, ...rest] = shift ? [...preOrdered, shift] : preOrdered;
+  return rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
+};
+
+// test cases
 const tree = [6, 15, 3, 8, 20].reduce(
   (acc, curr) => insert(curr)(acc),
   BST(10)
 );
 const [root, ...rest] = preOrder(tree);
 const tree2 = rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
+const minTree = minimalTree([1, 2, 3, 4, 5, 6, 7]);
 
 console.log('eq', eq(tree)(tree2));
 console.log('find', findNode(8)(tree));
 console.log('find', findNode(18)(tree));
 console.log('listOfDepths', listOfDepths(tree2));
+console.log('preOrder', preOrder(minTree));
+console.log('inOrder', inOrder(minTree));
