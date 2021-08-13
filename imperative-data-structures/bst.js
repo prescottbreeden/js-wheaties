@@ -58,13 +58,42 @@ const insert = (newValue) => ({ value, left, right }) =>
     ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
     : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
 
-const findNode = (search) => (bst) =>
+const contains = (search) => (bst) =>
   match([
     [eq(null), () => false],
     [pipe(prop('value'), eq(search)), () => true],
     [pipe(prop('value'), gt(search)), pipe(prop('left'), findNode(search))],
     [pipe(prop('value'), lt(search)), pipe(prop('right'), findNode(search))],
   ])(bst);
+
+const filter = (predicate) => (bst) => {
+  let data = [];
+  function traverse({ value, left, right }) {
+    if (predicate(value)) data.push(value);
+    if (left) traverse(left);
+    if (right) traverse(right);
+  }
+  traverse(bst);
+  return data;
+};
+
+const remove = (search) => ({ value, left, right }) => {
+  if (search === value) {
+    if (left && right) {
+      return left.size > right.size
+        ? BST(min(right), left, remove(min(right))(right))
+        : BST(max(left), remove(max(left))(left), right);
+    } else if (!left && !right) {
+      return null;
+    } else {
+      return left || right;
+    }
+  } else {
+    return search < value
+      ? BST(value, remove(search)(left), right)
+      : BST(value, left, remove(search)(right));
+  }
+};
 
 const preOrder = (bst) => {
   const data = [];
@@ -95,17 +124,6 @@ const postOrder = (bst) => {
     if (right) traverse(right);
     data.push(value);
   };
-  traverse(bst);
-  return data;
-};
-
-const filter = (predicate) => (bst) => {
-  let data = [];
-  function traverse({ value, left, right }) {
-    if (predicate(value)) data.push(value);
-    if (left) traverse(left);
-    if (right) traverse(right);
-  }
   traverse(bst);
   return data;
 };
