@@ -37,7 +37,7 @@ class Queue {
     this.head = addBack(value)(this.head);
   }
   dequeue() {
-    const { value, next} = this.head;
+    const { value, next } = this.head;
     this.head = next;
     return value;
   }
@@ -58,13 +58,13 @@ const insert = (newValue) => ({ value, left, right }) =>
     ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
     : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
 
-const findNode = (value) => (arg) =>
+const findNode = (search) => (bst) =>
   match([
     [eq(null), () => false],
-    [pipe(prop('value'), eq(value)), () => true],
-    [pipe(prop('value'), gt(value)), pipe(prop('left'), findNode(value))],
-    [pipe(prop('value'), lt(value)), pipe(prop('right'), findNode(value))],
-  ])(arg);
+    [pipe(prop('value'), eq(search)), () => true],
+    [pipe(prop('value'), gt(search)), pipe(prop('left'), findNode(search))],
+    [pipe(prop('value'), lt(search)), pipe(prop('right'), findNode(search))],
+  ])(bst);
 
 const preOrder = (bst) => {
   const data = [];
@@ -117,8 +117,8 @@ const bfs = (bst) => {
   while (nodes.values.length) {
     const { value, left, right } = nodes.dequeue();
     result.push(value);
-    left && nodes.enqueue(left);
-    right && nodes.enqueue(right);
+    if (left) nodes.enqueue(left);
+    if (right) nodes.enqueue(right);
   }
   return result;
 };
@@ -130,8 +130,8 @@ const listOfDepths = (bst) => {
   while (nodes.hasValues) {
     const { value, left, right, height } = nodes.dequeue();
     result[height] = addFront(value)(result[height]);
-    left && nodes.enqueue(left);
-    right && nodes.enqueue(right);
+    if (left) nodes.enqueue(left);
+    if (right) nodes.enqueue(right);
   }
   return result;
 };
@@ -144,4 +144,8 @@ const tree = [6, 15, 3, 8, 20].reduce(
 );
 const [root, ...rest] = preOrder(tree);
 const tree2 = rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
+
+console.log('eq', eq(tree)(tree2));
+console.log('find', findNode(8)(tree));
+console.log('find', findNode(18)(tree));
 console.log('listOfDepths', listOfDepths(tree2));
