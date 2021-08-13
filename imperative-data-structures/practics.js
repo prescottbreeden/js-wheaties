@@ -51,3 +51,4 @@ const tree = [40, 50, 20, 22, 18, 48, 55].reduce(
 console.log('pre-order:  ', preOrder(tree));
 console.log('in-order:   ', inOrder(tree));
 console.log('post-order: ', postOrder(tree));
+
