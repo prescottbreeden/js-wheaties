@@ -1,4 +1,7 @@
-const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
+const pipe =
+  (...fns) =>
+  (arg) =>
+    fns.reduce((acc, curr) => curr(acc), arg);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const gt = (a) => (b) => b > a;
 const lt = (a) => (b) => b < a;
@@ -44,19 +47,33 @@ class Queue {
 }
 
 // BST
+const height = (left, right) => {
+  if (left && right) {
+    return left.height > right.height ? left.height : right.height;
+  } else if (left || right) {
+    return left ? left.height : right.height;
+  } else {
+    return 0;
+  }
+};
 
 const BST = (value, left = null, right = null) => ({
   value,
   left,
   right,
   size: 1 + (left ? left.size : 0) + (right ? right.size : 0),
-  height: 1 + (left ? left.height : right ? right.height : 0),
+  height: 1 + height(left, right),
 });
 
-const insert = (newValue) => ({ value, left, right }) =>
-  newValue < value
-    ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
-    : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
+const insert =
+  (newValue) =>
+  ({ value, left, right }) =>
+    newValue < value
+      ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
+      : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
+
+const max = (bst) => (bst.right ? max(bst.right) : bst.value);
+const min = (bst) => (bst.left ? min(bst.left) : bst.value);
 
 const findNode = (search) => (bst) =>
   match([
@@ -166,11 +183,12 @@ const tree = [6, 15, 3, 8, 20].reduce(
 );
 const [root, ...rest] = preOrder(tree);
 const tree2 = rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
-const minTree = minimalTree([1, 2, 3, 4, 5, 6, 7]);
+const minTree = minimalTree([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 console.log('eq', eq(tree)(tree2));
 console.log('find', findNode(8)(tree));
 console.log('find', findNode(18)(tree));
 console.log('listOfDepths', listOfDepths(tree2));
+console.log('minimalTree', minTree);
 console.log('preOrder', preOrder(minTree));
 console.log('inOrder', inOrder(minTree));
