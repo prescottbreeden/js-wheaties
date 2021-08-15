@@ -1,4 +1,9 @@
-const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
+const assert = require('assert');
+
+const pipe =
+  (...fns) =>
+  (arg) =>
+    fns.reduce((acc, curr) => curr(acc), arg);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const gt = (a) => (b) => b > a;
 const lt = (a) => (b) => b < a;
@@ -62,10 +67,12 @@ const BST = (value, left = null, right = null) => ({
   height: 1 + height(left, right),
 });
 
-const insert = (newValue) => ({ value, left, right }) =>
-  newValue < value
-    ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
-    : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
+const insert =
+  (newValue) =>
+  ({ value, left, right }) =>
+    newValue < value
+      ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
+      : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
 
 const max = (bst) => (bst.right ? max(bst.right) : bst.value);
 const min = (bst) => (bst.left ? min(bst.left) : bst.value);
@@ -89,23 +96,25 @@ const filter = (predicate) => (bst) => {
   return data;
 };
 
-const remove = (search) => ({ value, left, right }) => {
-  if (search === value) {
-    if (left && right) {
-      return left.size > right.size
-        ? BST(min(right), left, remove(min(right))(right))
-        : BST(max(left), remove(max(left))(left), right);
-    } else if (!left && !right) {
-      return null;
+const remove =
+  (search) =>
+  ({ value, left, right }) => {
+    if (search === value) {
+      if (left && right) {
+        return left.size > right.size
+          ? BST(min(right), left, remove(min(right))(right))
+          : BST(max(left), remove(max(left))(left), right);
+      } else if (!left && !right) {
+        return null;
+      } else {
+        return left || right;
+      }
     } else {
-      return left || right;
+      return search < value
+        ? BST(value, remove(search)(left), right)
+        : BST(value, left, remove(search)(right));
     }
-  } else {
-    return search < value
-      ? BST(value, remove(search)(left), right)
-      : BST(value, left, remove(search)(right));
-  }
-};
+  };
 
 const preOrder = (bst) => {
   const data = [];
@@ -190,7 +199,19 @@ const minimalTree = (values) => {
 };
 
 // heights of two subtrees of any node never differ by more than 1
-const checkBalanced = (bst) => bst;
+const checkBalanced = ({ left, right }) => {
+  console.log(left, right);
+  if (left && right) {
+    console.log('abs', Math.abs(left.height - right.height) === 1);
+    if (Math.abs(left.height - right.height) === 1) {
+      return checkBalanced(left) && checkBalanced(right);
+    } else {
+      return false;
+    }
+  } else {
+    return true;
+  }
+};
 
 // check if a bst is valid
 const validBST = (bst) => bst;
@@ -210,10 +231,15 @@ const [root, ...rest] = preOrder(tree);
 const tree2 = rest.reduce((acc, curr) => insert(curr)(acc), BST(root));
 const minTree = minimalTree([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
-console.log('eq', eq(tree)(tree2));
-console.log('find', contains(8)(tree));
-console.log('find', contains(18)(tree));
-console.log('listOfDepths', listOfDepths(tree2));
-console.log('minimalTree', minTree);
-console.log('preOrder', preOrder(minTree));
-console.log('inOrder', inOrder(minTree));
+console.log('=============================');
+assert.strictEqual(eq(tree)(tree2), true);
+assert.strictEqual(contains(8)(tree), true);
+assert.strictEqual(contains(7)(tree), false);
+assert.strictEqual(Object.keys(listOfDepths(tree2)).length, 3);
+assert.strictEqual(listOfDepths(tree2)['1'].length, 3);
+assert.strictEqual(listOfDepths(tree2)['2'].length, 2);
+assert.strictEqual(listOfDepths(tree2)['3'].length, 1);
+assert.strictEqual(minTree.height, 4);
+// assert.strictEqual(checkBalanced(minTree), true);
+checkBalanced(minTree);
+console.log('all tests passed');
