@@ -6,6 +6,7 @@
 // Moving Window
 // Multiple Pointer
 // Array Partition
+// Binary Search
 
 // ----------------
 // Sorts
@@ -72,3 +73,4 @@
 
 // Special
 // A*
+

@@ -28,18 +28,38 @@ const h = (length) => (slide) => (end) => (start) =>
 const rollingHash = (pattern, text) => {
   const result = stringSum(pattern.split(''));
   let start = 0;
-  let end = pattern.length - 1; // 2
-  let slide = stringSum(text.slice(start, end + 1).split(''));
+  let slide = stringSum(text.slice(start, pattern.length).split(''));
 
-  while (end < text.length - 1) {
+  while (start <= text.length - pattern.length) {
     if (slide === result) return true;
-    slide = h(pattern.length - 1)(slide)(text[end + 1])(text[start]);
+    slide = h(pattern.length - 1)(slide)(text[start + pattern.length])(
+      text[start]
+    );
     start++;
-    end++;
   }
   return false;
 };
 
+const countSubstrings = (pattern, text) => {
+  const result = stringSum(pattern.split(''));
+  let start = 0;
+  let slide = stringSum(text.slice(start, pattern.length).split(''));
+  let count = 0;
+
+  // this breaks if <= because of out of bounds...
+  while (start < text.length - pattern.length) {
+    if (slide === result) {
+      count++;
+    }
+    slide = h(pattern.length - 1)(slide)(text[start + pattern.length])(
+      text[start]
+    );
+    start++;
+  }
+  return count;
+};
+
 const text = 'thebrownfoxjumpsoverthelazydog';
-const pattern = 'foxj';
+const pattern = 'dog';
 console.log(rollingHash(pattern, text));
+console.log(countSubstrings(pattern, text));
