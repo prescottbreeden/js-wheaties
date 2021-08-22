@@ -9,16 +9,6 @@
 // Binary Search
 
 // ----------------
-// Sorts
-// ----------------
-// Bubble
-// Selection
-// Insertion
-// Merge
-// Quick
-// Radix
-
-// ----------------
 // Data Structures
 // ----------------
 // SLL
@@ -73,4 +63,3 @@
 
 // Special
 // A*
-

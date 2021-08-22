@@ -35,8 +35,7 @@ const takeCompare = curry((c, a, b) => (c(a, b) ? b : a));
 const swap = curry((val1, val2, arr) => {
   const idx = indexOf(val1, arr);
   const pidx = indexOf(val2, arr);
-  arr[pidx] = val1;
-  arr[idx] = val2;
+  [arr[idx], arr[pidx]] = [arr[pidx], arr[idx]];
 });
 
 // parent :: a -> [a] -> a
