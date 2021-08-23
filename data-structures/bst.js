@@ -1,9 +1,6 @@
 const assert = require('assert');
 
-const pipe =
-  (...fns) =>
-  (arg) =>
-    fns.reduce((acc, curr) => curr(acc), arg);
+const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const gt = (a) => (b) => b > a;
 const lt = (a) => (b) => b < a;
@@ -67,12 +64,10 @@ const BST = (value, left = null, right = null) => ({
   height: 1 + height(left, right),
 });
 
-const insert =
-  (newValue) =>
-  ({ value, left, right }) =>
-    newValue < value
-      ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
-      : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
+const insert = (newValue) => ({ value, left, right }) =>
+  newValue < value
+    ? BST(value, left ? insert(newValue)(left) : BST(newValue), right)
+    : BST(value, left, right ? insert(newValue)(right) : BST(newValue));
 
 const max = (bst) => (bst.right ? max(bst.right) : bst.value);
 const min = (bst) => (bst.left ? min(bst.left) : bst.value);
@@ -96,25 +91,23 @@ const filter = (predicate) => (bst) => {
   return data;
 };
 
-const remove =
-  (search) =>
-  ({ value, left, right }) => {
-    if (search === value) {
-      if (left && right) {
-        return left.size > right.size
-          ? BST(min(right), left, remove(min(right))(right))
-          : BST(max(left), remove(max(left))(left), right);
-      } else if (!left && !right) {
-        return null;
-      } else {
-        return left || right;
-      }
+const remove = (search) => ({ value, left, right }) => {
+  if (search === value) {
+    if (left && right) {
+      return left.size > right.size
+        ? BST(min(right), left, remove(min(right))(right))
+        : BST(max(left), remove(max(left))(left), right);
+    } else if (!left && !right) {
+      return null;
     } else {
-      return search < value
-        ? BST(value, remove(search)(left), right)
-        : BST(value, left, remove(search)(right));
+      return left || right;
     }
-  };
+  } else {
+    return search < value
+      ? BST(value, remove(search)(left), right)
+      : BST(value, left, remove(search)(right));
+  }
+};
 
 const preOrder = (bst) => {
   const data = [];
@@ -176,7 +169,7 @@ const listOfDepths = (bst) => {
 };
 
 const minimalTree = (values) => {
-  const middleIdx = (arr) => Math.floor((arr.length - 1) / 2);
+  const middleIdx = (arr) => Math.floor(arr.length / 2);
 
   let shift;
   if (values.length % 2 === 0) {
