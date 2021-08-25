@@ -307,13 +307,84 @@ const pipe = (...fns) => (arg) => fns.reduce((acc, f) => f(acc), arg);
 // console.log(filter((x) => x % 2 === 0)(bst));
 
 // GRAPH (un/directed, un/weighted)
-// addvertex
-// addedge (directed)
-// bfs
-// dfs
-// shortestpath
-// dijkstra
+class Graph {
+  constructor() {
+    this.vertices = {};
+  }
+  // addvertex
+  addvertex(vertex) {
+    this.vertices[vertex] = [];
+    return this;
+  }
+  // addedge (directed)
+  addedge(a, b) {
+    this.vertices[a].push(b);
+    this.vertices[b].push(a);
+    return this;
+  }
+  // bfs
+  bfs(start) {
+    const result = [];
+    const visited = { [start]: true };
+    const queue = new Q();
+    queue.enqueue(start);
+    while (queue.values.length) {
+      const vertex = queue.dequeue();
+      result.push(vertex);
+      this.vertices[vertex].forEach((node) => {
+        if (!visited[node]) {
+          visited[node] = true;
+          queue.enqueue(node);
+        }
+      });
+    }
+    return result;
+  }
+  // dfs
+  dfs(start) {
+    const result = [];
+    const visited = { [start]: true };
+    const stack = [];
+    stack.push(start);
+    while (stack.length) {
+      const vertex = stack.pop();
+      result.push(vertex);
+      this.vertices[vertex].forEach((node) => {
+        if (!visited[node]) {
+          visited[node] = true;
+          stack.push(node);
+        }
+      });
+    }
+    return result;
+  }
+  // shortestpath
+  // dijkstra
+}
 
+const gr = new Graph();
+gr.addvertex('a')
+  .addvertex('b')
+  .addvertex('c')
+  .addvertex('d')
+  .addvertex('e')
+  .addvertex('f')
+  .addvertex('g')
+  .addvertex('h');
+
+gr.addedge('a', 'b')
+  .addedge('a', 'd')
+  .addedge('b', 'c')
+  .addedge('c', 'f')
+  .addedge('d', 'c')
+  .addedge('d', 'f')
+  .addedge('e', 'g')
+  .addedge('f', 'g')
+  .addedge('g', 'h');
+
+console.log(gr);
+console.log(gr.bfs('a'));
+console.log(gr.dfs('a'));
 // TRIE
 // insert
 // remove
