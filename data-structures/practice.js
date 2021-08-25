@@ -95,6 +95,23 @@ class Q {
   }
 }
 
+class MinPriorityQueue {
+  constructor() {
+    this.values = [];
+  }
+  enqueue(value, priority) {
+    this.values.push({ value, priority });
+    this.sort();
+    return this;
+  }
+  dequeue() {
+    return this.values.shift();
+  }
+  sort() {
+    this.values.sort((a, b) => a.priority - b.priority);
+  }
+}
+
 // HEAP (max/min/priority)
 // insert
 // extract root
@@ -288,23 +305,6 @@ const bst = [5, 15, 2, 7, 12, 20].reduce(
   (acc, curr) => insert(curr)(acc),
   BST(10)
 );
-const pipe = (...fns) => (arg) => fns.reduce((acc, f) => f(acc), arg);
-
-// console.log(bst);
-// console.log(deleteNode(15)(bst));
-// console.log(pipe(deleteNode(15), contains(15))(bst));
-// console.log(preorder(bst));
-// console.log(inorder(bst));
-// console.log(postorder(bst));
-// console.log(valuesAtDepths(bst));
-// console.log(bstIsBalanced(bst));
-// console.log(
-//   pipe(deleteNode(15), deleteNode(20), deleteNode(12), bstIsBalanced)(bst)
-// );
-// console.log(successor(15)(bst));
-// console.log(validBst(bst));
-// console.log(pipe(deleteNode(15), inorder, minTree)(bst));
-// console.log(filter((x) => x % 2 === 0)(bst));
 
 // GRAPH (un/directed, un/weighted)
 class Graph {
@@ -358,33 +358,79 @@ class Graph {
     }
     return result;
   }
-  // shortestpath
-  // dijkstra
 }
 
-const gr = new Graph();
-gr.addvertex('a')
-  .addvertex('b')
-  .addvertex('c')
-  .addvertex('d')
-  .addvertex('e')
-  .addvertex('f')
-  .addvertex('g')
-  .addvertex('h');
+// directed and weighted
+class DWGraph {
+  constructor() {
+    this.vertices = {};
+  }
+  addVertex(vertex) {
+    this.vertices[vertex] = [];
+    return this;
+  }
+  addEdge(vertex, node, weight) {
+    this.vertices[vertex].push({ node, weight });
+    return this;
+  }
+  shortestPath(start, end) {
+    const weights = {};
+    const previous = {};
+    const queue = new MinPriorityQueue();
+    for (let vertex in this.vertices) {
+      weights[vertex] = Infinity;
+    }
+    weights[start] = 0;
+    queue.enqueue(start, 0);
+    while (queue.values.length) {
+      const { value: currentVertex } = queue.dequeue();
+      if (currentVertex === end) {
+        const path = [];
+        const weight = weights[end];
+        while (previous[end]) {
+          path.push(end);
+          end = previous[end];
+        }
+        path.push(start);
+        return { path: path.reverse(), weight };
+      } else {
+        this.vertices[currentVertex].forEach(({ node, weight }) => {
+          const totalWeight = weights[currentVertex] + weight;
+          if (totalWeight < weights[node]) {
+            weights[node] = totalWeight;
+            previous[node] = currentVertex;
+            queue.enqueue(node, totalWeight);
+          }
+        });
+      }
+    }
+    return null;
+  }
+}
 
-gr.addedge('a', 'b')
-  .addedge('a', 'd')
-  .addedge('b', 'c')
-  .addedge('c', 'f')
-  .addedge('d', 'c')
-  .addedge('d', 'f')
-  .addedge('e', 'g')
-  .addedge('f', 'g')
-  .addedge('g', 'h');
+const gw = new DWGraph();
+gw.addVertex('a')
+  .addVertex('b')
+  .addVertex('c')
+  .addVertex('d')
+  .addVertex('e')
+  .addVertex('f')
+  .addVertex('g')
+  .addVertex('h');
 
-console.log(gr);
-console.log(gr.bfs('a'));
-console.log(gr.dfs('a'));
+gw.addEdge('a', 'b', 3)
+  .addEdge('a', 'd', 5)
+  .addEdge('b', 'c', 1)
+  .addEdge('c', 'f', 2)
+  .addEdge('c', 'e', 1)
+  .addEdge('d', 'c', 4)
+  .addEdge('d', 'f', 2)
+  .addEdge('e', 'g', 3)
+  .addEdge('f', 'g', 3)
+  .addEdge('g', 'h', 3);
+
+console.log(gw.shortestPath('a', 'h'));
+
 // TRIE
 // insert
 // remove

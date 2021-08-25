@@ -61,9 +61,9 @@ class Graph {
     const list = this.#list;
 
     (function traverse(v) {
+      result.push(v);
       list[v].forEach((n) => {
         if (!visited[n]) {
-          result.push(n);
           visited[n] = true;
           traverse(n);
         }
@@ -79,11 +79,11 @@ class Graph {
     const stack = [start];
     while (stack.length > 0) {
       const node = stack.pop();
+      result.push(node);
       this.#list[node].forEach((n) => {
         if (!visited[n]) {
           visited[n] = true;
           stack.push(n);
-          result.push(n);
         }
       });
     }
@@ -91,8 +91,21 @@ class Graph {
   }
 
   bfs(start) {
-    // implement a queue
-    return this;
+    const result = [];
+    const visited = { [start]: true };
+    const queue = new Q();
+    queue.enqueue(start);
+    while (queue.values.length) {
+      const vertex = queue.dequeue();
+      result.push(vertex);
+      this.vertices[vertex].forEach((node) => {
+        if (!visited[node]) {
+          visited[node] = true;
+          queue.enqueue(node);
+        }
+      });
+    }
+    return result;
   }
 
   dijkstras() {
