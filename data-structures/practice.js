@@ -305,6 +305,25 @@ const bst = [5, 15, 2, 7, 12, 20].reduce(
   (acc, curr) => insert(curr)(acc),
   BST(10)
 );
+const firstCommonAncestor = (bst, c1, c2) => {
+  const queue = [bst];
+  const bfs = [];
+  while (queue.length) {
+    const { value, left, right } = queue.shift();
+    if (left) queue.push(left);
+    if (right) queue.push(right);
+    bfs.push(value);
+  }
+  let idx1 = bfs.indexOf(c1);
+  let idx2 = bfs.indexOf(c2);
+  const parent = (n) => Math.floor((n - 1) / 2);
+  while (idx1 !== idx2) {
+    idx1 = parent(idx1);
+    idx2 = parent(idx2);
+  }
+  return bfs[idx1];
+};
+console.log(firstCommonAncestor(bst, 12, 20));
 
 // GRAPH (un/directed, un/weighted)
 class Graph {
@@ -374,13 +393,13 @@ class DWGraph {
     return this;
   }
   shortestPath(start, end) {
-    const weights = {};
     const previous = {};
-    const queue = new MinPriorityQueue();
+    const weights = {};
     for (let vertex in this.vertices) {
       weights[vertex] = Infinity;
     }
     weights[start] = 0;
+    const queue = new MinPriorityQueue();
     queue.enqueue(start, 0);
     while (queue.values.length) {
       const { value: currentVertex } = queue.dequeue();
@@ -408,28 +427,61 @@ class DWGraph {
   }
 }
 
-const gw = new DWGraph();
-gw.addVertex('a')
-  .addVertex('b')
-  .addVertex('c')
-  .addVertex('d')
-  .addVertex('e')
-  .addVertex('f')
-  .addVertex('g')
-  .addVertex('h');
+class DirectedGraph {
+  constructor() {
+    this.vertices = {};
+  }
+  addVertex(v) {
+    this.vertices[v] = [];
+  }
+  // package 'b' requires package 'a'
+  addEdge(a, b) {
+    this.vertices[a].push(b);
+  }
+}
 
-gw.addEdge('a', 'b', 3)
-  .addEdge('a', 'd', 5)
-  .addEdge('b', 'c', 1)
-  .addEdge('c', 'f', 2)
-  .addEdge('c', 'e', 1)
-  .addEdge('d', 'c', 4)
-  .addEdge('d', 'f', 2)
-  .addEdge('e', 'g', 3)
-  .addEdge('f', 'g', 3)
-  .addEdge('g', 'h', 3);
+const packages = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-console.log(gw.shortestPath('a', 'h'));
+const dependencyArray = [
+  ['a', 'd'],
+  ['b', 'd'],
+  ['f', 'a'],
+  ['f', 'b'],
+  ['d', 'c'],
+];
+
+function topologicalSort(vertices, arr) {
+  const graph = new DirectedGraph();
+  vertices.forEach((v) => graph.addVertex(v));
+  arr.forEach(([a, b]) => {
+    graph.addEdge(a, b);
+  });
+  const buildOrder = [];
+  while (Object.keys(graph.vertices).length) {
+    const allEdges = Object.keys(graph.vertices)
+      .flatMap((vertex) => {
+        return graph.vertices[vertex];
+      })
+      .reduce((acc, curr) => {
+        if (!acc.includes(curr)) {
+          acc.push(curr);
+        }
+        return acc;
+      }, []);
+    const removableNodes = Object.keys(graph.vertices).filter((vertex) => {
+      return !allEdges.includes(vertex);
+    });
+    while (removableNodes.length) {
+      const node = removableNodes.pop();
+      buildOrder.push(node);
+      delete graph.vertices[node];
+    }
+  }
+  return buildOrder;
+}
+
+const res = topologicalSort(packages, dependencyArray);
+console.log(res);
 
 // TRIE
 // insert
