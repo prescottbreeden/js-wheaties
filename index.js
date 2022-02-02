@@ -1,3 +1,2 @@
 console.log('running');
-
-require('./udemy/ex');
+require('./fem/index');

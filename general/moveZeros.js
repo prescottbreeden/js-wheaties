@@ -35,7 +35,7 @@ function moveZerosToEnd(arr) {
   }
   while (end < arr.length) {
     swap(start, end, arr);
-    while (arr[end + 1] === 0) {
+    while (arr[end + 1] === 0 && end + 1 < arr.length) {
       end++;
     }
     start++;
